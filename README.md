@@ -4,6 +4,12 @@ A friendly hydration tracker for logging drinks, setting a flexible routine, che
 
 **Live site:** https://hydration-buddy-tracker.netlify.app/
 
+## Help others get started
+
+Share the public link: https://hydration-buddy-tracker.netlify.app/ . The app includes a **Share Hydration Buddy** button that uses the device share sheet when available, plus a **Copy link** option for messaging, email, or social posts. New visitors see a short start guide and instructions for adding the app to their home screen.
+
+No account or app-store install is required. Each person's drink log and preferences stay in their own browser and do not sync between devices.
+
 ## Features
 
 - Accessible, responsive drink logging with editable daily entries.

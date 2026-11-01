@@ -1,4 +1,4 @@
-const CACHE_NAME = 'hydration-buddy-v2';
+const CACHE_NAME = 'hydration-buddy-v3';
 const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './about.html', './privacy.html'];
 
 self.addEventListener('install', event => {

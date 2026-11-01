@@ -70,6 +70,14 @@
     .reminder-controls select,.reminder-controls input { min-width:0; width:100%; min-height:44px; border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff; color:var(--ink); font:inherit; }
     .reminder-actions { display:flex; flex-wrap:wrap; gap:8px; }
     .install-app[hidden] { display:none; }
+    .getting-started { grid-column:1/-1; display:grid; grid-template-columns:minmax(0,1fr) auto; gap:14px; align-items:center; border-left:4px solid var(--coral); }
+    .getting-started h2 { margin:0 0 5px; font-size:18px; }
+    .getting-started p { margin:0; color:var(--muted); }
+    .share-actions { display:flex; flex-wrap:wrap; justify-content:flex-end; gap:8px; }
+    .share-status { grid-column:1/-1; min-height:1em; margin:0; color:var(--muted); font-size:13px; }
+    .share-url { overflow-wrap:anywhere; font-weight:650; }
+    .quick-start { margin:8px 0 0; padding-left:20px; color:var(--muted); font-size:14px; }
+    @media(max-width:720px) { .getting-started { grid-column:auto; grid-template-columns:1fr; } .share-actions { justify-content:flex-start; } .share-status { grid-column:auto; } }
     .notice { font-size:13px; line-height:1.45; color:#526773; background:#eaf1f4; border-radius:12px; padding:12px; margin:0; }
     .celebration { color:#65412f; background:#fff0e9; border:1px solid #f1c4ad; animation:pop .45s ease-out; }
     @keyframes pop { 0% { transform:scale(.92); opacity:.4; } 70% { transform:scale(1.03); } 100% { transform:scale(1); opacity:1; } }
@@ -98,6 +106,17 @@
       <div class="brand"><div class="buddy-mark" id="buddy-avatar" aria-hidden="true"><div class="buddy-face"><span class="buddy-eyes">••</span><span class="buddy-mouth"></span></div></div><div><h1>Hydration Buddy</h1><p id="greeting">A friendly nudge to care for yourself.</p></div></div>
       <div><button class="secondary install-app" id="install-app" type="button" hidden>Install app</button><div class="clock"><span id="clock">--:--:--</span><small id="date">Loading date…</small></div></div>
     </header>
+
+    <section class="card getting-started" aria-labelledby="start-title">
+      <div>
+        <h2 id="start-title">Start your hydration routine</h2>
+        <p>No account or download is needed. Your log stays in this browser on this device. Try logging a drink, setting a goal from your care team's advice, or choosing reminder times.</p>
+        <details><summary>Save Hydration Buddy to your device</summary><p>On iPhone or iPad, open this page in Safari, tap Share, then choose <strong>Add to Home Screen</strong>. On supported browsers, use the <strong>Install app</strong> button or the browser's install option.</p></details>
+        <p class="share-url">Share this link: <a href="https://hydration-buddy-tracker.netlify.app/">hydration-buddy-tracker.netlify.app</a></p>
+      </div>
+      <div class="share-actions"><button id="share-app" type="button">Share Hydration Buddy</button><button class="secondary" id="copy-link" type="button">Copy link</button></div>
+      <p id="share-status" class="share-status" role="status" aria-live="polite"></p>
+    </section>
 
     <section class="card chat-card" aria-label="Chat with Hydration Buddy">
       <h2>Chat</h2>
@@ -159,6 +178,23 @@
 
   <script>
     const $ = (id) => document.getElementById(id);
+    const publicAppUrl = 'https://hydration-buddy-tracker.netlify.app/';
+    const inviteText = `Try Hydration Buddy, a free hydration tracker: ${publicAppUrl}`;
+    async function shareHydrationBuddy(copyOnly = false) {
+      const status = $('share-status');
+      if (!copyOnly && navigator.share) {
+        try { await navigator.share({title:'Hydration Buddy', text:'A friendly, private hydration tracker. No account or download needed.', url:publicAppUrl}); status.textContent = 'Thanks for sharing Hydration Buddy!'; return; }
+        catch (error) { if (error.name === 'AbortError') return; }
+      }
+      try {
+        await navigator.clipboard.writeText(copyOnly ? publicAppUrl : inviteText);
+        status.textContent = copyOnly ? 'Link copied. Paste it into a message, email, or post.' : 'Invite copied. Paste it into a message, email, or post.';
+      } catch (_) {
+        status.textContent = `Copy this link: ${publicAppUrl}`;
+      }
+    }
+    $('share-app').addEventListener('click', () => shareHydrationBuddy());
+    $('copy-link').addEventListener('click', () => shareHydrationBuddy(true));
     const memoryStorage = Object.create(null);
     function readStorage(key) {
       try { return window.localStorage.getItem(key); }
