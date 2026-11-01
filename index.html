@@ -3,6 +3,10 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#23445a">
+  <meta name="description" content="A friendly, private hydration tracker with flexible reminders and accessible voice support.">
+  <link rel="manifest" href="manifest.webmanifest">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
   <title>Hydration Buddy</title>
   <style>
     :root { color-scheme: light; --ink:#20313b; --muted:#61747e; --navy:#23445a; --pale-blue:#e6f1f5; --line:#d6e2e8; --blue:#3f8eae; --coral:#e99a77; }
@@ -41,7 +45,7 @@
     input { min-width:0; border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--ink); background:white; }
     input:focus { outline:3px solid #3f8eae44; border-color:var(--blue); }
     .composer input { flex:1; }
-    button { border:0; border-radius:10px; padding:10px 14px; background:var(--navy); color:white; font-weight:650; cursor:pointer; }
+    button { min-height:44px; border:0; border-radius:10px; padding:10px 14px; background:var(--navy); color:white; font-weight:650; cursor:pointer; }
     button:hover { filter:brightness(.94); }
     button:focus-visible, a:focus-visible, input:focus-visible { outline:3px solid var(--coral); outline-offset:3px; }
     button.secondary { background:var(--pale-blue); color:var(--ink); }
@@ -60,6 +64,12 @@
     .history-entry button { padding:5px 7px; font-size:11px; }
     .history-entry .remove { background:#f8e9e3; color:#783d36; }
     .history-empty { color:var(--muted); font-size:12px; margin:3px 0; }
+    .reminder-controls { display:grid; gap:10px; margin-top:12px; }
+    .reminder-row { display:grid; grid-template-columns:1fr 1fr; gap:8px; }
+    .reminder-controls label { display:grid; gap:4px; font-size:13px; font-weight:650; color:var(--ink); }
+    .reminder-controls select,.reminder-controls input { min-width:0; width:100%; min-height:44px; border:1px solid var(--line); border-radius:10px; padding:8px 10px; background:#fff; color:var(--ink); font:inherit; }
+    .reminder-actions { display:flex; flex-wrap:wrap; gap:8px; }
+    .install-app[hidden] { display:none; }
     .notice { font-size:13px; line-height:1.45; color:#526773; background:#eaf1f4; border-radius:12px; padding:12px; margin:0; }
     .celebration { color:#65412f; background:#fff0e9; border:1px solid #f1c4ad; animation:pop .45s ease-out; }
     @keyframes pop { 0% { transform:scale(.92); opacity:.4; } 70% { transform:scale(1.03); } 100% { transform:scale(1); opacity:1; } }
@@ -70,7 +80,8 @@
     .party-card p { margin:0; color:#66584f; }
     .party-close { margin-top:19px; background:var(--navy); }
     @keyframes party-pop { from { transform:translateY(18px) scale(.78); opacity:0; } to { transform:translateY(0) scale(1); opacity:1; } }
-    @media(prefers-reduced-motion:reduce) { .party-card,.celebration,.buddy-mark,.buddy-mark::after,.buddy-mark.talking .buddy-mouth { animation:none; } }
+    @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
+    @media(forced-colors:active) { button { border:1px solid ButtonText; } .buddy-mark { forced-color-adjust:none; } }
     .weather-result { min-height:25px; margin-top:10px; color:var(--muted); font-size:14px; }
     footer { grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; }
     @media(max-width:720px) { .app { grid-template-columns:1fr; margin:14px auto; } header { grid-column:auto; padding:19px; } .side { display:grid; grid-template-columns:1fr 1fr; } .notice { grid-column:1/-1; } .chat-card { min-height:520px; } }
@@ -82,12 +93,12 @@
   <main class="app" id="main-content">
     <header>
       <div class="brand"><div class="buddy-mark" id="buddy-avatar" aria-hidden="true"><div class="buddy-face"><span class="buddy-eyes">••</span><span class="buddy-mouth"></span></div></div><div><h1>Hydration Buddy</h1><p id="greeting">A friendly nudge to care for yourself.</p></div></div>
-      <div class="clock"><span id="clock">--:--:--</span><small id="date">Loading date…</small></div>
+      <div><button class="secondary install-app" id="install-app" type="button" hidden>Install app</button><div class="clock"><span id="clock">--:--:--</span><small id="date">Loading date…</small></div></div>
     </header>
 
     <section class="card chat-card" aria-label="Chat with Hydration Buddy">
       <h2>Chat</h2>
-      <div id="messages" class="messages" aria-live="polite"></div>
+      <div id="messages" class="messages" role="log" aria-label="Conversation with Hydration Buddy" aria-live="polite" aria-relevant="additions"></div>
       <form class="composer" id="chat-form">
         <input id="chat-input" autocomplete="off" aria-label="Message" placeholder="Type a command or ask for help…">
         <button class="secondary" id="talk-button" type="button" title="Speak to Hydration Buddy" aria-label="Speak to Hydration Buddy">🎙️</button>
@@ -103,6 +114,19 @@
     </section>
 
     <aside class="side">
+      <section class="card">
+        <h2>Reminders</h2>
+        <div class="reminder-controls">
+          <label for="reminder-interval">Nudge me every</label>
+          <select id="reminder-interval"><option value="20">20 minutes</option><option value="30">30 minutes</option><option value="45">45 minutes</option><option value="60" selected>1 hour</option><option value="90">1 hour 30 minutes</option><option value="120">2 hours</option></select>
+          <div class="reminder-row">
+            <label for="quiet-start">Start time<input id="quiet-start" type="time" value="08:00"></label>
+            <label for="quiet-end">End time<input id="quiet-end" type="time" value="21:00"></label>
+          </div>
+          <div class="reminder-actions"><button id="reminder-toggle" type="button">Start reminders</button><button id="notification-toggle" class="secondary" type="button">Enable notifications</button></div>
+          <p id="reminder-status" class="subtle" aria-live="polite">Reminders are off.</p>
+        </div>
+      </section>
       <section class="card">
         <h2>Today's fluid log</h2>
         <div class="metric"><span id="intake">0</span> <span style="font-size:17px">ml</span></div>
@@ -121,9 +145,9 @@
       </section>
 
       <p class="notice">General guide: 1.6 L (8 × 200 ml drinks); on very hot days, this app uses 2 L as a higher planning guide. NHS advice says needs vary and people may need more in heat, but it does not set a fixed heat increase. If your diabetes team has set a target or you have a fluid limit, enter that target instead. Check with your care team if you have kidney or heart problems. This tracker is not medical advice.</p>
-      <p class="notice">Privacy: your drink log and goal stay in this browser on this device. Weather searches send the city you enter to Open-Meteo. If you use the microphone, your browser's speech recognition service may process audio; voice is optional and behavior varies by browser.</p>
+      <p class="notice">Privacy: your drink log, goal, and reminder preferences stay in this browser on this device. Weather searches send the city you enter to Open-Meteo. If you use the microphone, your browser's speech recognition service may process audio; voice is optional and behavior varies by browser.</p>
     </aside>
-    <footer>Reminders and alarms work while this page remains open.</footer>
+    <footer>Reminders work while this page remains open. They pause when you close the page; browser notifications are optional.</footer>
   </main>
 
   <script>
@@ -187,6 +211,68 @@
       $('voice-status').textContent = 'Voice input is not supported in this browser. You can still type messages.';
     }
     const save = () => writeStorage('hydration-buddy', JSON.stringify(state));
+    const reminderDefaults = {interval:60, start:'08:00', end:'21:00', enabled:false};
+    let reminderSettings = {...reminderDefaults};
+    try { reminderSettings = {...reminderDefaults, ...JSON.parse(readStorage('hydration-buddy-reminders') || '{}'), enabled:false}; } catch (_) {}
+    $('reminder-interval').value = String(reminderSettings.interval);
+    $('quiet-start').value = reminderSettings.start;
+    $('quiet-end').value = reminderSettings.end;
+    let reminderTimer = null;
+    let nextReminderAt = 0;
+    function saveReminderSettings() { writeStorage('hydration-buddy-reminders', JSON.stringify(reminderSettings)); }
+    function isWithinReminderHours(date) {
+      const minute = date.getHours()*60 + date.getMinutes();
+      const [startHour,startMinute] = reminderSettings.start.split(':').map(Number);
+      const [endHour,endMinute] = reminderSettings.end.split(':').map(Number);
+      const start = startHour*60 + startMinute, end = endHour*60 + endMinute;
+      return start <= end ? minute >= start && minute <= end : minute >= start || minute <= end;
+    }
+    function updateReminderStatus(message) {
+      $('reminder-status').textContent = message || (reminderTimer ? `Reminders are on every ${reminderSettings.interval} minutes, between ${reminderSettings.start} and ${reminderSettings.end}. Keep this page open for nudges.` : 'Reminders are off.');
+      $('reminder-toggle').textContent = reminderTimer ? 'Stop reminders' : 'Start reminders';
+      $('reminder-toggle').setAttribute('aria-pressed', String(Boolean(reminderTimer)));
+    }
+    function checkReminder() {
+      if (!reminderTimer || Date.now() < nextReminderAt) return;
+      if (!isWithinReminderHours(new Date())) { nextReminderAt = Date.now() + 60000; return; }
+      const message = 'Hydration check-in! Fancy a sip of water?';
+      addMessage('Buddy', message);
+      if ('Notification' in window && Notification.permission === 'granted') {
+        if (navigator.serviceWorker?.controller) navigator.serviceWorker.ready.then(reg => reg.showNotification('Hydration Buddy', {body:message, icon:'icon.svg', tag:'hydration-reminder'})).catch(() => {});
+        else new Notification('Hydration Buddy', {body:message, icon:'icon.svg', tag:'hydration-reminder'});
+      }
+      nextReminderAt = Date.now() + Number(reminderSettings.interval)*60000;
+    }
+    $('reminder-toggle').addEventListener('click', () => {
+      reminderSettings.interval = Number($('reminder-interval').value);
+      reminderSettings.start = $('quiet-start').value;
+      reminderSettings.end = $('quiet-end').value;
+      if (reminderTimer) { clearInterval(reminderTimer); reminderTimer = null; reminderSettings.enabled = false; saveReminderSettings(); updateReminderStatus('Reminders are off.'); return; }
+      if (!reminderSettings.start || !reminderSettings.end) { updateReminderStatus('Choose a start and end time first.'); return; }
+      reminderSettings.enabled = true; saveReminderSettings(); nextReminderAt = Date.now() + reminderSettings.interval*60000;
+      reminderTimer = setInterval(checkReminder, 15000); updateReminderStatus();
+    });
+    ['reminder-interval','quiet-start','quiet-end'].forEach(id => $(id).addEventListener('change', () => {
+      reminderSettings.interval = Number($('reminder-interval').value); reminderSettings.start = $('quiet-start').value; reminderSettings.end = $('quiet-end').value; saveReminderSettings();
+      if (reminderTimer) { nextReminderAt = Date.now() + reminderSettings.interval*60000; updateReminderStatus(); }
+    }));
+    $('notification-toggle').addEventListener('click', async () => {
+      if (!('Notification' in window)) { updateReminderStatus('This browser does not support notifications. On-page reminders still work while this tab is open.'); return; }
+      if (Notification.permission === 'granted') { updateReminderStatus('Browser notifications are enabled. Keep this page open for reminder timing.'); return; }
+      if (Notification.permission === 'denied') { updateReminderStatus('Notifications are blocked in browser settings. On-page reminders still work while this tab is open.'); return; }
+      try {
+        const permission = await Notification.requestPermission();
+        updateReminderStatus(permission === 'granted' ? 'Browser notifications are enabled. Keep this page open for reminder timing.' : 'Notifications were not enabled. On-page reminders still work while this tab is open.');
+      } catch (_) { updateReminderStatus('Notifications are unavailable here. On-page reminders still work while this tab is open.'); }
+    });
+    updateReminderStatus();
+    let installPrompt = null;
+    window.addEventListener('beforeinstallprompt', event => { event.preventDefault(); installPrompt = event; $('install-app').hidden = false; });
+    $('install-app').addEventListener('click', async () => {
+      if (!installPrompt) return;
+      installPrompt.prompt(); await installPrompt.userChoice; installPrompt = null; $('install-app').hidden = true;
+    });
+    if ('serviceWorker' in navigator && location.protocol.startsWith('http')) navigator.serviceWorker.register('./sw.js').catch(() => {});
     function chooseWarmFemaleVoice(voices, language) {
       const languageCode = language.split('-')[0].toLowerCase();
       const localVoices = voices.filter(voice => voice.lang.toLowerCase() === language.toLowerCase());
