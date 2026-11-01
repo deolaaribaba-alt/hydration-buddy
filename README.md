@@ -1,19 +1,30 @@
 # Hydration Buddy
 
-This is a static, single-page browser app. Open `index.html` locally, or publish this folder to a static site host to share it. When hosted over HTTPS, browsers that support installable web apps can offer an **Install app** button. On iPhone/iPad, use Safari's Share menu and choose **Add to Home Screen**.
+A friendly hydration tracker for logging drinks, setting a flexible routine, checking local weather, and chatting with a warm voice companion.
 
-## Reminders and offline use
+**Live site:** https://hydration-buddy-tracker.netlify.app/
 
-Choose a reminder interval and active hours in the Reminders card, then select **Start reminders**. Nudges run only while the page is open. Browser notifications are optional and require browser permission; closing the page pauses reminder timing. The app shell can load offline after its first successful visit, but weather lookups need an internet connection.
+## Features
 
-## Publish with Netlify Drop
+- Accessible, responsive drink logging with editable daily entries.
+- General fluid planning guide and personal goals that users set from their care team's advice.
+- Weather lookup, date and time, friendly chat, optional speech, and goal celebrations.
+- Configurable reminder interval and active hours, plus optional browser notifications.
+- Installable app shell and offline access to core files after the first visit.
+- About, health guidance, privacy, and support pages.
 
-1. Sign in to Netlify and open its manual deploy page: https://app.netlify.com/drop
-2. Drag the `hydration-buddy-site` folder onto the deploy area.
-3. Netlify will provide an HTTPS link you can share.
+Reminders pause when the page is closed. Weather lookups need an internet connection. Install options depend on the browser; iPhone and iPad users can use Safari's Share menu and select **Add to Home Screen**.
 
-The app has no server or account system. A chosen name, drink logs, goals, and reminder preferences stay in each visitor's browser storage on that device. City searches go to Open-Meteo. Browser speech recognition may process microphone audio through the browser's recognition service; voice is optional. Review the privacy notice in the app before sharing it broadly.
+## Privacy and health
 
-## Health guidance
+The app has no account system, analytics, advertising, or cloud sync. A chosen name, drink logs, goals, and reminder preferences remain in the browser on that device. Weather lookups send the city to Open-Meteo. Optional speech input may be processed by the browser's speech recognition service. Read [privacy.html](privacy.html) for details.
 
-Hydration targets are general guidance, not a medical plan. Visitors should use targets or fluid limits set by their own healthcare team.
+Hydration guidance is general and is not a medical plan. Follow any fluid target or limit set by a healthcare team. See [about.html](about.html).
+
+## Publish
+
+The live site is managed in the Hydration Buddy Netlify project. To publish updated static files, create a zip containing the contents of this folder and upload it from the project's Deploys page. The site can also be connected to the GitHub repository for automatic deploys.
+
+## Support
+
+Report issues or suggest improvements in [GitHub Issues](https://github.com/deolaaribaba-alt/hydration-buddy/issues). Do not post private health information in public issues.

@@ -83,7 +83,9 @@
     @media(prefers-reduced-motion:reduce) { *,*::before,*::after { scroll-behavior:auto !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; transition-duration:.01ms !important; } }
     @media(forced-colors:active) { button { border:1px solid ButtonText; } .buddy-mark { forced-color-adjust:none; } }
     .weather-result { min-height:25px; margin-top:10px; color:var(--muted); font-size:14px; }
-    footer { grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; }
+    footer { grid-column:1/-1; text-align:center; color:var(--muted); font-size:13px; padding:8px 0 20px; }
+    .footer-links { display:flex; justify-content:center; flex-wrap:wrap; gap:16px; margin:8px 0; }
+    .footer-links a,.page-nav a { color:#23445a; font-weight:650; text-underline-offset:3px; }
     @media(max-width:720px) { .app { grid-template-columns:1fr; margin:14px auto; } header { grid-column:auto; padding:19px; } .side { display:grid; grid-template-columns:1fr 1fr; } .notice { grid-column:1/-1; } .chat-card { min-height:520px; } }
     @media(max-width:560px) { .side { grid-template-columns:1fr; } .notice { grid-column:auto; } }
     @media(max-width:440px) { .side { grid-template-columns:1fr; } .notice { grid-column:auto; } }
@@ -148,7 +150,11 @@
       <p class="notice">General guide: 1.6 L (8 × 200 ml drinks); on very hot days, this app uses 2 L as a higher planning guide. NHS advice says needs vary and people may need more in heat, but it does not set a fixed heat increase. If your diabetes team has set a target or you have a fluid limit, enter that target instead. Check with your care team if you have kidney or heart problems. This tracker is not medical advice.</p>
       <p class="notice">Privacy: your name, drink log, goal, and reminder preferences stay in this browser on this device. Weather searches send the city you enter to Open-Meteo. If you use the microphone, your browser's speech recognition service may process audio; voice is optional and behavior varies by browser.</p>
     </aside>
-    <footer>Reminders work while this page remains open. They pause when you close the page; browser notifications are optional.</footer>
+    <footer>
+      <p>Reminders work while this page remains open. They pause when you close the page; browser notifications are optional.</p>
+      <nav class="footer-links" aria-label="About Hydration Buddy"><a href="about.html">About &amp; health guidance</a><a href="privacy.html">Privacy</a><a href="https://github.com/deolaaribaba-alt/hydration-buddy/issues">Support</a></nav>
+      <p>© 2026 Hydration Buddy</p>
+    </footer>
   </main>
 
   <script>
