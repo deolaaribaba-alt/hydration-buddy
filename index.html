@@ -1,0 +1,477 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Hydration Buddy</title>
+  <style>
+    :root { color-scheme: light; --ink:#20313b; --muted:#61747e; --navy:#23445a; --pale-blue:#e6f1f5; --line:#d6e2e8; --blue:#3f8eae; --coral:#e99a77; }
+    * { box-sizing:border-box; }
+    .skip-link { position:absolute; left:12px; top:-60px; z-index:30; padding:10px 14px; border-radius:8px; background:#fff; color:var(--navy); font-weight:700; box-shadow:0 2px 10px #0002; }
+    .skip-link:focus { top:12px; }
+    body { margin:0; min-height:100vh; background:linear-gradient(140deg,#f1f6f8,#f8fafb 55%,#e8f1f5); color:var(--ink); font:16px/1.5 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif; }
+    .app { width:min(960px,100% - 32px); margin:32px auto; display:grid; grid-template-columns: minmax(0,1.5fr) minmax(260px,.8fr); gap:18px; }
+    header { grid-column:1/-1; display:flex; justify-content:space-between; align-items:center; background:var(--navy); color:#fff; border-radius:20px; padding:24px 28px; box-shadow:0 12px 30px #23445a25; }
+    .brand { display:flex; align-items:center; gap:16px; }
+    .buddy-mark { position:relative; flex:0 0 58px; width:58px; height:58px; display:grid; place-items:center; border-radius:58% 58% 58% 10%; transform:rotate(-45deg); background:linear-gradient(135deg,#78d1e5,#3f8eae 62%,#23445a); box-shadow:inset -5px -7px 12px #23445a30,0 6px 14px #132c3a40; animation:buddy-float 2.8s ease-in-out infinite; }
+    .buddy-mark::before { content:""; position:absolute; width:15px; height:8px; border-radius:50%; top:10px; left:12px; background:#ffffff80; filter:blur(1px); }
+    .buddy-mark::after { content:""; position:absolute; width:8px; height:8px; border-radius:50%; top:-8px; right:-4px; background:var(--coral); box-shadow:0 0 0 4px #e99a7730; animation:bubble-float 2.2s ease-in-out infinite; }
+    .buddy-face { position:relative; z-index:1; display:flex; flex-direction:column; align-items:center; gap:1px; transform:rotate(45deg) translateY(2px); color:#fff; }
+    .buddy-eyes { font-size:13px; font-weight:800; letter-spacing:5px; line-height:1; padding-left:5px; }
+    .buddy-mouth { width:12px; height:6px; margin-top:2px; border-bottom:2px solid white; border-radius:0 0 12px 12px; }
+    .buddy-mark.talking .buddy-mouth { height:9px; border:1.5px solid white; border-radius:50%; background:#f7b5a0; animation:mouth-talk .18s ease-in-out infinite alternate; }
+    .buddy-mark.celebrating { animation:buddy-yay .45s ease-in-out 5; }
+    @keyframes buddy-float { 0%,100% { transform:translateY(0) rotate(-45deg); } 50% { transform:translateY(-6px) rotate(-41deg); } }
+    @keyframes bubble-float { 0%,100% { transform:translateY(0) scale(1); opacity:.9; } 50% { transform:translateY(-6px) scale(.8); opacity:.6; } }
+    @keyframes mouth-talk { to { transform:scaleY(.55); } }
+    @keyframes buddy-yay { 0%,100% { transform:translateY(0) rotate(-45deg); } 50% { transform:translateY(-11px) rotate(-33deg) scale(1.08); } }
+    h1 { font-size:clamp(25px,4vw,34px); line-height:1.1; margin:0 0 5px; }
+    header p { margin:0; color:#d9eaf1; }
+    .clock { text-align:right; font-size:clamp(22px,4vw,32px); font-weight:700; font-variant-numeric:tabular-nums; }
+    .clock small { display:block; font-size:12px; font-weight:500; color:#d9eaf1; }
+    .card { background:#ffffffed; border:1px solid #fff; box-shadow:0 8px 25px #23445a10; border-radius:18px; padding:20px; }
+    .chat-card { min-height:550px; display:flex; flex-direction:column; }
+    h2 { margin:0 0 12px; font-size:18px; }
+    .messages { flex:1; min-height:340px; max-height:490px; overflow:auto; padding:6px 2px; }
+    .message { width:fit-content; max-width:90%; white-space:pre-wrap; margin:0 0 11px; padding:11px 14px; border-radius:15px; background:var(--pale-blue); }
+    .message.user { margin-left:auto; background:#dfeaf0; }
+    .message strong { display:block; font-size:12px; color:var(--navy); margin-bottom:2px; }
+    .composer { display:flex; gap:8px; margin-top:10px; }
+    input,button { font:inherit; }
+    input { min-width:0; border:1px solid var(--line); border-radius:10px; padding:10px 12px; color:var(--ink); background:white; }
+    input:focus { outline:3px solid #3f8eae44; border-color:var(--blue); }
+    .composer input { flex:1; }
+    button { border:0; border-radius:10px; padding:10px 14px; background:var(--navy); color:white; font-weight:650; cursor:pointer; }
+    button:hover { filter:brightness(.94); }
+    button:focus-visible, a:focus-visible, input:focus-visible { outline:3px solid var(--coral); outline-offset:3px; }
+    button.secondary { background:var(--pale-blue); color:var(--ink); }
+    .quick { display:flex; flex-wrap:wrap; gap:7px; margin-top:11px; }
+    .quick button { font-size:13px; padding:8px 10px; }
+    .side { display:flex; flex-direction:column; gap:14px; }
+    .metric { color:var(--blue); font-size:32px; line-height:1.1; font-weight:750; margin:4px 0 10px; }
+    .subtle { color:var(--muted); font-size:13px; margin:0; }
+    .field { display:flex; gap:8px; margin-top:12px; }
+    .field input { flex:1; width:100%; }
+    .history-title { margin:17px 0 7px; font-size:14px; }
+    .history-list { display:grid; gap:7px; max-height:210px; overflow:auto; }
+    .history-entry { display:grid; grid-template-columns:minmax(52px,1fr) 58px 14px auto auto; align-items:center; gap:4px; padding:7px; background:#f1f6f8; border-radius:10px; font-size:12px; }
+    .history-entry time { color:var(--muted); }
+    .history-entry input { width:100%; padding:5px; text-align:right; font-size:12px; }
+    .history-entry button { padding:5px 7px; font-size:11px; }
+    .history-entry .remove { background:#f8e9e3; color:#783d36; }
+    .history-empty { color:var(--muted); font-size:12px; margin:3px 0; }
+    .notice { font-size:13px; line-height:1.45; color:#526773; background:#eaf1f4; border-radius:12px; padding:12px; margin:0; }
+    .celebration { color:#65412f; background:#fff0e9; border:1px solid #f1c4ad; animation:pop .45s ease-out; }
+    @keyframes pop { 0% { transform:scale(.92); opacity:.4; } 70% { transform:scale(1.03); } 100% { transform:scale(1); opacity:1; } }
+    .party-layer { position:fixed; inset:0; z-index:20; display:grid; place-items:center; pointer-events:none; }
+    .party-canvas { position:absolute; inset:0; width:100%; height:100%; pointer-events:none; }
+    .party-card { position:relative; width:min(430px,calc(100% - 36px)); padding:30px 26px; border:1px solid #f1c4ad; border-radius:24px; background:linear-gradient(145deg,#fff,#fff1e9); box-shadow:0 24px 80px #23445a50; text-align:center; color:#65412f; pointer-events:auto; animation:party-pop .65s cubic-bezier(.2,1.5,.5,1); }
+    .party-card h2 { font-size:29px; margin:0 0 8px; }
+    .party-card p { margin:0; color:#66584f; }
+    .party-close { margin-top:19px; background:var(--navy); }
+    @keyframes party-pop { from { transform:translateY(18px) scale(.78); opacity:0; } to { transform:translateY(0) scale(1); opacity:1; } }
+    @media(prefers-reduced-motion:reduce) { .party-card,.celebration,.buddy-mark,.buddy-mark::after,.buddy-mark.talking .buddy-mouth { animation:none; } }
+    .weather-result { min-height:25px; margin-top:10px; color:var(--muted); font-size:14px; }
+    footer { grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; }
+    @media(max-width:720px) { .app { grid-template-columns:1fr; margin:14px auto; } header { grid-column:auto; padding:19px; } .side { display:grid; grid-template-columns:1fr 1fr; } .notice { grid-column:1/-1; } .chat-card { min-height:520px; } }
+    @media(max-width:440px) { .side { grid-template-columns:1fr; } .notice { grid-column:auto; } }
+  </style>
+</head>
+<body>
+  <a class="skip-link" href="#main-content">Skip to Hydration Buddy</a>
+  <main class="app" id="main-content">
+    <header>
+      <div class="brand"><div class="buddy-mark" id="buddy-avatar" aria-hidden="true"><div class="buddy-face"><span class="buddy-eyes">••</span><span class="buddy-mouth"></span></div></div><div><h1>Hydration Buddy</h1><p id="greeting">A friendly nudge to care for yourself.</p></div></div>
+      <div class="clock"><span id="clock">--:--:--</span><small id="date">Loading date…</small></div>
+    </header>
+
+    <section class="card chat-card" aria-label="Chat with Hydration Buddy">
+      <h2>Chat</h2>
+      <div id="messages" class="messages" aria-live="polite"></div>
+      <form class="composer" id="chat-form">
+        <input id="chat-input" autocomplete="off" aria-label="Message" placeholder="Type a command or ask for help…">
+        <button class="secondary" id="talk-button" type="button" title="Speak to Hydration Buddy" aria-label="Speak to Hydration Buddy">🎙️</button>
+        <button type="submit">Send</button>
+      </form>
+      <div class="quick" aria-label="Quick actions">
+        <button class="secondary" data-say="drink">Log 250 ml</button>
+        <button class="secondary" data-say="status">Status</button>
+        <button class="secondary" data-say="help">Help</button>
+        <button class="secondary" id="voice-toggle" type="button" aria-pressed="true">🔊 Voice on</button>
+      </div>
+      <p id="voice-status" class="subtle" aria-live="polite" style="margin-top:8px"></p>
+    </section>
+
+    <aside class="side">
+      <section class="card">
+        <h2>Today's fluid log</h2>
+        <div class="metric"><span id="intake">0</span> <span style="font-size:17px">ml</span></div>
+        <p id="goal-status" class="subtle">Loading daily guide…</p>
+        <form class="field" id="drink-form"><input id="amount" type="number" min="1" max="5000" value="250" aria-label="Drink amount in millilitres"><button type="submit">Log drink</button></form>
+        <form class="field" id="goal-form"><input id="goal" type="number" min="1" max="10000" placeholder="Your care-team goal (ml)" aria-label="Daily fluid goal in millilitres"><button type="submit">Set goal</button></form>
+        <button class="secondary" id="nhs-guide" type="button" style="width:100%; margin-top:8px">Use general daily guide</button>
+        <h3 class="history-title">Today's drinks</h3>
+        <div id="drink-history" class="history-list" aria-live="polite"></div>
+      </section>
+
+      <section class="card">
+        <h2>Weather</h2>
+        <form class="field" id="weather-form"><input id="place" placeholder="City, e.g. London" aria-label="City for weather"><button type="submit">Look up</button></form>
+        <div id="weather-result" class="weather-result" aria-live="polite">Current conditions by city</div>
+      </section>
+
+      <p class="notice">General guide: 1.6 L (8 × 200 ml drinks); on very hot days, this app uses 2 L as a higher planning guide. NHS advice says needs vary and people may need more in heat, but it does not set a fixed heat increase. If your diabetes team has set a target or you have a fluid limit, enter that target instead. Check with your care team if you have kidney or heart problems. This tracker is not medical advice.</p>
+      <p class="notice">Privacy: your drink log and goal stay in this browser on this device. Weather searches send the city you enter to Open-Meteo. If you use the microphone, your browser's speech recognition service may process audio; voice is optional and behavior varies by browser.</p>
+    </aside>
+    <footer>Reminders and alarms work while this page remains open.</footer>
+  </main>
+
+  <script>
+    const $ = (id) => document.getElementById(id);
+    const memoryStorage = Object.create(null);
+    function readStorage(key) {
+      try { return window.localStorage.getItem(key); }
+      catch (_) { return memoryStorage[key] ?? null; }
+    }
+    function writeStorage(key, value) {
+      memoryStorage[key] = String(value);
+      try { window.localStorage.setItem(key, String(value)); } catch (_) { /* Session-only fallback is still usable. */ }
+    }
+    const today = new Date().toLocaleDateString('en-CA');
+    let saved = {};
+    try { saved = JSON.parse(readStorage('hydration-buddy') || '{}'); } catch (_) { saved = {}; }
+    const state = saved.date === today
+      ? {...saved, celebrated: Boolean(saved.celebrated), celebrated2000: Boolean(saved.celebrated2000), goalMode: saved.goalMode || (saved.goal ? 'personal' : 'general'), goal: saved.goal || 1600}
+      : { date: today, intake: 0, goal: 1600, goalMode: 'general', celebrated: false, celebrated2000: false, history: [], legacyIntake: 0 };
+    state.history = Array.isArray(state.history) ? state.history : [];
+    state.intake = Number(state.intake) || 0;
+    state.legacyIntake = Number.isFinite(Number(state.legacyIntake))
+      ? Number(state.legacyIntake)
+      : (state.history.length ? 0 : state.intake);
+    const weatherCodes = {0:'clear sky',1:'mostly clear',2:'partly cloudy',3:'overcast',45:'foggy',48:'icy fog',51:'light drizzle',53:'drizzle',55:'heavy drizzle',61:'light rain',63:'rain',65:'heavy rain',71:'light snow',73:'snow',75:'heavy snow',80:'rain showers',81:'rain showers',82:'heavy rain showers',95:'thunderstorms',96:'thunderstorms with hail',99:'thunderstorms with hail'};
+    let name = readStorage('hydration-buddy-name') || '';
+    if (!name) {
+      name = window.prompt("Hi! I'm your Hydration Buddy. What's your name?") || 'there';
+      writeStorage('hydration-buddy-name', name.trim() || 'there');
+      name = readStorage('hydration-buddy-name');
+    }
+    $('greeting').textContent = `A friendly hydration companion for ${name}.`;
+    const canSpeak = 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance !== 'undefined';
+    let voiceEnabled = canSpeak;
+    let pageReady = false;
+    $('voice-toggle').textContent = voiceEnabled ? '🔊 Voice on' : '🔈 Voice unavailable';
+    $('voice-toggle').setAttribute('aria-pressed', String(voiceEnabled));
+    if (!canSpeak) {
+      $('voice-toggle').disabled = true;
+      $('voice-status').textContent = 'This browser does not support spoken replies. Try Safari or Chrome, or keep using typed chat.';
+    } else {
+      $('voice-status').textContent = 'Spoken replies are on. Send a message to hear Buddy.';
+    }
+    const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+    let recognition = null;
+    if (SpeechRecognition) {
+      try {
+        recognition = new SpeechRecognition();
+        recognition.lang = navigator.language || 'en-GB';
+        recognition.interimResults = false;
+        recognition.maxAlternatives = 1;
+        recognition.onstart = () => { $('voice-status').textContent = 'Listening… speak now.'; $('talk-button').textContent = '⏹️'; };
+        recognition.onend = () => { $('talk-button').textContent = '🎙️'; };
+        recognition.onerror = event => { $('voice-status').textContent = event.error === 'not-allowed' ? 'Microphone permission was blocked. Allow microphone access in your browser settings.' : `Voice input error: ${event.error}. You can still type.`; };
+        recognition.onresult = event => { const spoken = event.results[0][0].transcript; $('chat-input').value = spoken; reply(spoken); };
+      } catch (_) { recognition = null; }
+    }
+    if (!recognition) {
+      $('talk-button').disabled = true;
+      $('talk-button').title = 'Voice input is not supported by this browser';
+      $('voice-status').textContent = 'Voice input is not supported in this browser. You can still type messages.';
+    }
+    const save = () => writeStorage('hydration-buddy', JSON.stringify(state));
+    function chooseWarmFemaleVoice(voices, language) {
+      const languageCode = language.split('-')[0].toLowerCase();
+      const localVoices = voices.filter(voice => voice.lang.toLowerCase() === language.toLowerCase());
+      const regionalVoices = voices.filter(voice => voice.lang.toLowerCase().startsWith(languageCode));
+      const femaleName = /female|woman|samantha|ava|victoria|karen|moira|tessa|serena|zoe|aria|jenny|sonia|libby|hazel|zira|eva|natalie|sara|kate|fiona|allison|susan|catherine|emily|olivia|june|siri.*2|google.*female|microsoft.*zira/i;
+      return localVoices.find(voice => femaleName.test(voice.name))
+        || regionalVoices.find(voice => femaleName.test(voice.name))
+        || localVoices.find(voice => voice.default)
+        || regionalVoices.find(voice => voice.default)
+        || localVoices[0]
+        || regionalVoices[0]
+        || voices.find(voice => voice.default)
+        || null;
+    }
+    function updateLog() {
+      state.intake = state.legacyIntake + state.history.reduce((total, item) => total + (Number(item.amount) || 0), 0);
+      $('intake').textContent = state.intake;
+      const label = state.goalMode === 'general' ? 'general daily guide' : 'personal care-team goal';
+      $('goal-status').textContent = `${state.intake} ml toward ${state.goal} ml · ${label}`;
+      renderDrinkHistory();
+      save();
+    }
+    function renderDrinkHistory() {
+      const list = $('drink-history');
+      list.replaceChildren();
+      if (!state.history.length) {
+        const empty = document.createElement('p');
+        empty.className = 'history-empty';
+        empty.textContent = state.legacyIntake ? `${state.legacyIntake} ml from an earlier total (individual entries unavailable).` : 'No drinks logged yet.';
+        list.append(empty);
+        return;
+      }
+      for (const item of [...state.history].reverse()) {
+        const form = document.createElement('form');
+        form.className = 'history-entry';
+        form.dataset.id = item.id;
+        const time = document.createElement('time');
+        time.dateTime = item.time;
+        const parsedTime = new Date(item.time);
+        time.textContent = Number.isNaN(parsedTime.getTime()) ? 'Drink' : parsedTime.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'});
+        const amount = document.createElement('input');
+        amount.type = 'number'; amount.min = '1'; amount.max = '5000'; amount.required = true; amount.value = item.amount;
+        amount.setAttribute('aria-label', `Drink amount in millilitres, logged at ${time.textContent}`);
+        const unit = document.createElement('span'); unit.textContent = 'ml';
+        const saveButton = document.createElement('button'); saveButton.type = 'submit'; saveButton.textContent = 'Save';
+        const removeButton = document.createElement('button'); removeButton.type = 'button'; removeButton.className = 'remove'; removeButton.dataset.remove = 'true'; removeButton.textContent = 'Remove';
+        form.append(time, amount, unit, saveButton, removeButton);
+        list.append(form);
+      }
+    }
+    function setGeneralWeatherGoal(apparentTemperature) {
+      if (state.goalMode !== 'general') return;
+      const nextGoal = apparentTemperature >= 30 ? 2000 : 1600;
+      if (state.goal !== nextGoal) {
+        state.goal = nextGoal;
+        state.celebrated = false;
+        updateLog();
+        celebrateIfGoalReached();
+      }
+    }
+    function addMessage(who, text, user=false, celebration=false) {
+      const el = document.createElement('div'); el.className = `message${user ? ' user' : ''}${celebration ? ' celebration' : ''}`;
+      const label = document.createElement('strong'); label.textContent = who;
+      el.append(label, document.createTextNode(text)); $('messages').append(el); $('messages').scrollTop = $('messages').scrollHeight;
+      if (pageReady && who === 'Buddy' && voiceEnabled && 'speechSynthesis' in window && typeof SpeechSynthesisUtterance !== 'undefined') {
+        try {
+          window.speechSynthesis.cancel();
+          window.speechSynthesis.resume();
+          const utterance = new SpeechSynthesisUtterance(text);
+          const preferredLanguage = navigator.language || 'en-GB';
+          utterance.lang = preferredLanguage;
+          utterance.rate = 0.88;
+          utterance.pitch = 1.04;
+          utterance.volume = 0.9;
+          const avatar = $('buddy-avatar');
+          utterance.onstart = () => avatar.classList.add('talking');
+          utterance.onend = utterance.onerror = () => avatar.classList.remove('talking');
+          const voices = window.speechSynthesis.getVoices();
+          const selectedVoice = chooseWarmFemaleVoice(voices, preferredLanguage);
+          if (selectedVoice) utterance.voice = selectedVoice;
+          if (voices.length && selectedVoice && !/female|woman|samantha|ava|victoria|karen|moira|tessa|serena|zoe|aria|jenny|sonia|libby|hazel|zira|eva|natalie|sara|kate|fiona|allison|susan|catherine|emily|olivia|june|siri.*2|google.*female|microsoft.*zira/i.test(selectedVoice.name)) {
+            $('voice-status').textContent = `Your browser doesn't list a recognized female voice, so I'm using ${selectedVoice.name}. Choose a female voice in your device's speech settings for a closer match.`;
+          }
+          window.speechSynthesis.speak(utterance);
+        } catch (_) { /* Keep chat usable if speech output is unavailable. */ }
+      }
+    }
+    function celebrateIfGoalReached() {
+      const goalReached = state.goal && state.intake >= state.goal && !state.celebrated;
+      const twoLitresReached = state.goal >= 2000 && state.intake >= 2000 && !state.celebrated2000;
+      if (goalReached || twoLitresReached) {
+        state.celebrated = true;
+        if (twoLitresReached) state.celebrated2000 = true;
+        save();
+        const encouragement = twoLitresReached
+          ? `🎉 Amazing, ${name}! You've reached 2,000 ml today. That's a wonderful milestone—take a moment to celebrate and keep following your fluid plan. 🎉`
+          : `🎉 You did it, ${name}! You reached today's fluid goal. Fantastic work! Take a moment to celebrate, and keep following your fluid plan. 🎉`;
+        addMessage('Buddy', encouragement, false, true);
+        showGoalCelebration();
+      }
+    }
+    function showGoalCelebration() {
+      const avatar = $('buddy-avatar');
+      avatar.classList.add('celebrating');
+      window.setTimeout(() => avatar.classList.remove('celebrating'), 2400);
+      const layer = document.createElement('div');
+      layer.className = 'party-layer';
+      const canvas = document.createElement('canvas');
+      canvas.className = 'party-canvas';
+      canvas.setAttribute('aria-hidden', 'true');
+      const card = document.createElement('section');
+      card.className = 'party-card';
+      card.setAttribute('role', 'status');
+      card.setAttribute('aria-live', 'assertive');
+      const title = document.createElement('h2');
+      title.textContent = '🎉 Goal reached! 🎉';
+      const note = document.createElement('p');
+      note.textContent = `Fantastic work, ${name}! You reached today's fluid goal.`;
+      const close = document.createElement('button');
+      close.className = 'party-close';
+      close.type = 'button';
+      close.textContent = 'Lovely!';
+      card.append(title, note, close);
+      layer.append(canvas, card);
+      document.body.append(layer);
+
+      let animationFrame = 0;
+      const context = canvas.getContext('2d');
+      const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+      const colors = ['#3f8eae', '#e99a77', '#f4bd50', '#6c75d9', '#a87bd0', '#f08aa7'];
+      let pieces = [];
+      function resizeCanvas() {
+        const ratio = Math.min(window.devicePixelRatio || 1, 2);
+        canvas.width = Math.floor(window.innerWidth * ratio);
+        canvas.height = Math.floor(window.innerHeight * ratio);
+        if (context) context.setTransform(ratio, 0, 0, ratio, 0, 0);
+      }
+      function animateConfetti() {
+        if (!context || reducedMotion) return;
+        resizeCanvas();
+        const width = window.innerWidth, height = window.innerHeight;
+        pieces = Array.from({length:170}, () => ({
+          x:Math.random()*width, y:-Math.random()*height*.7, w:5+Math.random()*8, h:8+Math.random()*11,
+          vx:(Math.random()-.5)*2.7, vy:1.7+Math.random()*3.2, rotation:Math.random()*Math.PI,
+          spin:(Math.random()-.5)*.12, color:colors[Math.floor(Math.random()*colors.length)],
+        }));
+        const started = performance.now();
+        function frame(now) {
+          if (!layer.isConnected || now-started > 4600) { cancelAnimationFrame(animationFrame); return; }
+          context.clearRect(0, 0, width, height);
+          for (const piece of pieces) {
+            piece.x += piece.vx; piece.y += piece.vy; piece.vy += .018; piece.rotation += piece.spin;
+            context.save(); context.translate(piece.x, piece.y); context.rotate(piece.rotation);
+            context.fillStyle = piece.color; context.fillRect(-piece.w/2, -piece.h/2, piece.w, piece.h); context.restore();
+            if (piece.y > height + 20) { piece.y = -20; piece.x = Math.random()*width; piece.vy = 1.7+Math.random()*3.2; }
+          }
+          animationFrame = requestAnimationFrame(frame);
+        }
+        animationFrame = requestAnimationFrame(frame);
+      }
+      function dismiss() { cancelAnimationFrame(animationFrame); layer.remove(); window.removeEventListener('resize', resizeCanvas); }
+      close.addEventListener('click', dismiss);
+      window.addEventListener('resize', resizeCanvas);
+      if (!reducedMotion) animateConfetti();
+      window.setTimeout(dismiss, 6000);
+    }
+    function reply(text) {
+      const msg = text.trim(), lower = msg.toLowerCase();
+      if (!msg) return;
+      addMessage(name, msg, true);
+      if (lower === 'help' || lower === 'commands') {
+        addMessage('Buddy', "Try 'drink 200', 'goal 1800' (your own care-team-recommended target), 'status', 'weather London', 'time', 'alarm 07:30', or 'remind 20'.");
+      } else if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/.test(lower)) {
+        addMessage('Buddy', `Hi, ${name}! How can I help you today? You can ask for the time or weather, log a drink, or set a reminder.`);
+      } else if (lower.includes('how are you')) {
+        addMessage('Buddy', "I'm doing well and ready to keep you company. How are you feeling?");
+      } else if (/^(thanks|thank you|cheers)[!. ]*$/.test(lower)) {
+        addMessage('Buddy', "You're welcome! I'm here whenever you need a friendly nudge.");
+      } else if (lower === 'time' || lower === 'clock' || lower === 'what time is it') {
+        addMessage('Buddy', `It's ${new Date().toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})} local time.`);
+      } else if (lower === 'status' || lower === 'progress' || lower === 'count') {
+        addMessage('Buddy', state.goal ? `You've logged ${state.intake} ml toward your ${state.goal} ml goal today.` : `You've logged ${state.intake} ml today. Set your personal goal with the goal field or 'goal 1800'.`);
+      } else if (lower.startsWith('goal ')) {
+        const value = Number(lower.split(/\s+/)[1]);
+        if (!Number.isInteger(value) || value < 1 || value > 10000) addMessage('Buddy', "Enter a goal between 1 and 10000 ml, based on your care team's advice.");
+        else { state.goal = value; state.goalMode = 'personal'; updateLog(); addMessage('Buddy', `Personal goal set to ${value} ml. I'll leave it unchanged when the weather changes. Follow your care team's advice if it changes.`); celebrateIfGoalReached(); }
+      } else if (lower === 'drink' || lower.startsWith('drink ') || lower.startsWith('log ') || /\b(i\s+)?(drank|had)\s+\d+\s*(ml|millilitres?|milliliters?)\b/.test(lower)) {
+        const measuredDrink = lower.match(/\b(?:drank|had|drink|log(?:ged)?)\s+(\d+)\s*(?:ml|millilitres?|milliliters?)\b/);
+        const parts = lower.split(/\s+/); const amount = measuredDrink ? Number(measuredDrink[1]) : parts.length > 1 && /^\d+$/.test(parts[1]) ? Number(parts[1]) : 250;
+        if (!Number.isInteger(amount) || amount < 1 || amount > 5000) addMessage('Buddy', "Log an amount from 1 to 5000 ml, like 'drink 200'.");
+        else { state.history.push({id: `${Date.now()}-${Math.random().toString(16).slice(2)}`, amount, time: new Date().toISOString()}); updateLog(); addMessage('Buddy', `Logged ${amount} ml. Your total today is ${state.intake} ml. You're doing a thoughtful job looking after yourself.`); celebrateIfGoalReached(); }
+      } else if (lower.startsWith('weather')) {
+        const city = msg.slice(7).trim();
+        if (city) getWeather(city); else addMessage('Buddy', "Tell me a city, for example 'weather London'.");
+      } else if (lower.startsWith('remind')) {
+        const raw = lower.split(/\s+/)[1] || '30', minutes = Number(raw);
+        if (!Number.isInteger(minutes) || minutes < 1 || minutes > 1440) addMessage('Buddy', "Use 'remind 20' for a reminder in 20 minutes (up to 1440).");
+        else { setTimeout(() => addMessage('Buddy', 'Hydration check-in! Fancy a sip of water?'), minutes * 60000); addMessage('Buddy', `I'll remind you in ${minutes} minute${minutes === 1 ? '' : 's'}.`); }
+      } else if (lower.startsWith('alarm')) {
+        const match = msg.match(/^alarm\s+(\d{1,2}):(\d{2})$/i);
+        if (!match || Number(match[1]) > 23 || Number(match[2]) > 59) addMessage('Buddy', "Set an alarm using 24-hour time, like 'alarm 07:30'.");
+        else {
+          const now = new Date(), target = new Date(); target.setHours(Number(match[1]), Number(match[2]), 0, 0);
+          if (target <= now) target.setDate(target.getDate() + 1);
+          setTimeout(() => { addMessage('Buddy', `Alarm! It's ${match[1].padStart(2,'0')}:${match[2]}.`); document.title = '⏰ Hydration Buddy alarm'; }, target - now);
+          addMessage('Buddy', `Alarm set for ${match[1].padStart(2,'0')}:${match[2]} local time.`);
+        }
+      } else addMessage('Buddy', "I'm here to help you track fluids and remember to drink. Type 'help' to see what I can do.");
+    }
+    async function getWeather(city) {
+      $('weather-result').textContent = 'Looking up current conditions…';
+      try {
+        const geoUrl = new URL('https://geocoding-api.open-meteo.com/v1/search');
+        geoUrl.search = new URLSearchParams({name:city, count:'1', language:'en', format:'json'});
+        const geo = await fetch(geoUrl).then(r => { if (!r.ok) throw Error('Weather service unavailable'); return r.json(); });
+        if (!geo.results?.length) throw Error(`Couldn't find ${city}. Try a city and country.`);
+        const place = geo.results[0];
+        const forecastUrl = new URL('https://api.open-meteo.com/v1/forecast');
+        forecastUrl.search = new URLSearchParams({latitude:place.latitude, longitude:place.longitude, current:'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m', timezone:'auto'});
+        const data = await fetch(forecastUrl).then(r => { if (!r.ok) throw Error('Weather service unavailable'); return r.json(); });
+        const c = data.current, condition = weatherCodes[c.weather_code] || 'conditions unavailable';
+        const temp = Number(c.temperature_2m);
+        const apparentTemp = Number(c.apparent_temperature);
+        setGeneralWeatherGoal(apparentTemp);
+        let weatherTip = '';
+        if (apparentTemp >= 30) weatherTip = state.goalMode === 'general'
+          ? ` It feels very hot, so your general planning guide is now ${state.goal} ml today. NHS guidance says people may need extra fluid in heat, but follow any personal fluid limit.`
+          : " It feels very hot. NHS guidance says people may need extra fluid in heat; follow your care team's hot-weather advice and any fluid limit.";
+        else if (apparentTemp <= 10) weatherTip = state.goalMode === 'general'
+          ? ` It's cool today, so your general guide is ${state.goal} ml. Keep to your normal plan; the app doesn't lower the goal for cold weather.`
+          : " It's cool today. Keep following your personal fluid plan.";
+        $('weather-result').textContent = `${place.name}, ${place.country}: ${condition}, ${c.temperature_2m}°C (feels like ${c.apparent_temperature}°C), humidity ${c.relative_humidity_2m}%, wind ${c.wind_speed_10m} km/h.`;
+        addMessage('Buddy', $('weather-result').textContent + weatherTip);
+      } catch (error) { $('weather-result').textContent = error.message; addMessage('Buddy', error.message + ' Check your internet connection and try again.'); }
+    }
+    $('chat-form').addEventListener('submit', event => { event.preventDefault(); const input = $('chat-input'); reply(input.value); input.value=''; input.focus(); });
+    document.querySelectorAll('[data-say]').forEach(button => button.addEventListener('click', () => reply(button.dataset.say)));
+    $('voice-toggle').addEventListener('click', () => {
+      voiceEnabled = !voiceEnabled;
+      $('voice-toggle').textContent = voiceEnabled ? '🔊 Voice on' : '🔈 Voice off';
+      $('voice-toggle').setAttribute('aria-pressed', String(voiceEnabled));
+      if (!canSpeak) { voiceEnabled = false; $('voice-toggle').textContent = '🔈 Voice unavailable'; $('voice-toggle').setAttribute('aria-pressed', 'false'); $('voice-status').textContent = 'Spoken replies are not supported in this browser.'; }
+      else if (voiceEnabled) { $('voice-status').textContent = 'Spoken replies are on.'; addMessage('Buddy', 'Voice replies are on. You can speak using the microphone button.'); }
+      else { window.speechSynthesis.cancel(); $('voice-status').textContent = 'Spoken replies are off.'; }
+    });
+    $('talk-button').addEventListener('click', () => {
+      if (!recognition) return;
+      try { recognition.start(); } catch (_) { $('voice-status').textContent = 'Voice input is already listening.'; }
+    });
+    $('drink-form').addEventListener('submit', event => { event.preventDefault(); reply(`drink ${$('amount').value}`); });
+    $('goal-form').addEventListener('submit', event => { event.preventDefault(); reply(`goal ${$('goal').value}`); });
+    $('drink-history').addEventListener('submit', event => {
+      const form = event.target.closest('.history-entry');
+      if (!form) return;
+      event.preventDefault();
+      const amount = Number(form.querySelector('input').value);
+      if (!Number.isInteger(amount) || amount < 1 || amount > 5000) return;
+      const item = state.history.find(entry => entry.id === form.dataset.id);
+      if (item) { item.amount = amount; updateLog(); celebrateIfGoalReached(); }
+    });
+    $('drink-history').addEventListener('click', event => {
+      const button = event.target.closest('[data-remove="true"]');
+      if (!button) return;
+      const form = button.closest('.history-entry');
+      state.history = state.history.filter(item => item.id !== form.dataset.id);
+      updateLog();
+    });
+    $('nhs-guide').addEventListener('click', () => {
+      state.goalMode = 'general';
+      state.goal = 1600;
+      state.celebrated = false;
+      updateLog();
+      addMessage('Buddy', "You're using the general daily guide again: 1.6 L normally, rising to 2 L when the apparent temperature is 30°C or above. If your care team has given you a different target or fluid limit, use that instead.");
+      celebrateIfGoalReached();
+    });
+    $('weather-form').addEventListener('submit', event => { event.preventDefault(); const city = $('place').value.trim(); if (city) getWeather(city); });
+    function tick() {
+      const now = new Date();
+      $('clock').textContent = now.toLocaleTimeString([], {hour:'2-digit', minute:'2-digit', second:'2-digit'});
+      $('date').textContent = now.toLocaleDateString([], {weekday:'long', year:'numeric', month:'long', day:'numeric'});
+    }
+    tick(); setInterval(tick, 1000); updateLog();
+    addMessage('Buddy', `Hi, ${name}! I can log drinks, check weather, and set reminders or alarms.`);
+    addMessage('Buddy', 'Diabetes does not mean everyone has the same fluid target. Use the amount recommended by your diabetes care team, especially if you have kidney or heart problems or a fluid limit.');
+    pageReady = true;
+  </script>
+</body>
+</html>
