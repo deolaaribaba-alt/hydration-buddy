@@ -85,6 +85,7 @@
     .weather-result { min-height:25px; margin-top:10px; color:var(--muted); font-size:14px; }
     footer { grid-column:1/-1; text-align:center; color:var(--muted); font-size:12px; }
     @media(max-width:720px) { .app { grid-template-columns:1fr; margin:14px auto; } header { grid-column:auto; padding:19px; } .side { display:grid; grid-template-columns:1fr 1fr; } .notice { grid-column:1/-1; } .chat-card { min-height:520px; } }
+    @media(max-width:560px) { .side { grid-template-columns:1fr; } .notice { grid-column:auto; } }
     @media(max-width:440px) { .side { grid-template-columns:1fr; } .notice { grid-column:auto; } }
   </style>
 </head>
@@ -132,7 +133,7 @@
         <div class="metric"><span id="intake">0</span> <span style="font-size:17px">ml</span></div>
         <p id="goal-status" class="subtle">Loading daily guide…</p>
         <form class="field" id="drink-form"><input id="amount" type="number" min="1" max="5000" value="250" aria-label="Drink amount in millilitres"><button type="submit">Log drink</button></form>
-        <form class="field" id="goal-form"><input id="goal" type="number" min="1" max="10000" placeholder="Your care-team goal (ml)" aria-label="Daily fluid goal in millilitres"><button type="submit">Set goal</button></form>
+        <form class="field" id="goal-form"><input id="goal" type="number" min="1" max="10000" placeholder="Goal (ml)" aria-label="Daily fluid goal in millilitres"><button type="submit">Set goal</button></form>
         <button class="secondary" id="nhs-guide" type="button" style="width:100%; margin-top:8px">Use general daily guide</button>
         <h3 class="history-title">Today's drinks</h3>
         <div id="drink-history" class="history-list" aria-live="polite"></div>
@@ -145,7 +146,7 @@
       </section>
 
       <p class="notice">General guide: 1.6 L (8 × 200 ml drinks); on very hot days, this app uses 2 L as a higher planning guide. NHS advice says needs vary and people may need more in heat, but it does not set a fixed heat increase. If your diabetes team has set a target or you have a fluid limit, enter that target instead. Check with your care team if you have kidney or heart problems. This tracker is not medical advice.</p>
-      <p class="notice">Privacy: your drink log, goal, and reminder preferences stay in this browser on this device. Weather searches send the city you enter to Open-Meteo. If you use the microphone, your browser's speech recognition service may process audio; voice is optional and behavior varies by browser.</p>
+      <p class="notice">Privacy: your name, drink log, goal, and reminder preferences stay in this browser on this device. Weather searches send the city you enter to Open-Meteo. If you use the microphone, your browser's speech recognition service may process audio; voice is optional and behavior varies by browser.</p>
     </aside>
     <footer>Reminders work while this page remains open. They pause when you close the page; browser notifications are optional.</footer>
   </main>
@@ -174,12 +175,8 @@
       : (state.history.length ? 0 : state.intake);
     const weatherCodes = {0:'clear sky',1:'mostly clear',2:'partly cloudy',3:'overcast',45:'foggy',48:'icy fog',51:'light drizzle',53:'drizzle',55:'heavy drizzle',61:'light rain',63:'rain',65:'heavy rain',71:'light snow',73:'snow',75:'heavy snow',80:'rain showers',81:'rain showers',82:'heavy rain showers',95:'thunderstorms',96:'thunderstorms with hail',99:'thunderstorms with hail'};
     let name = readStorage('hydration-buddy-name') || '';
-    if (!name) {
-      name = window.prompt("Hi! I'm your Hydration Buddy. What's your name?") || 'there';
-      writeStorage('hydration-buddy-name', name.trim() || 'there');
-      name = readStorage('hydration-buddy-name');
-    }
-    $('greeting').textContent = `A friendly hydration companion for ${name}.`;
+    const buddyName = () => name || 'there';
+    $('greeting').textContent = name ? `A friendly hydration companion for ${name}.` : 'A friendly nudge to care for yourself.';
     const canSpeak = 'speechSynthesis' in window && typeof window.SpeechSynthesisUtterance !== 'undefined';
     let voiceEnabled = canSpeak;
     let pageReady = false;
@@ -368,8 +365,8 @@
         if (twoLitresReached) state.celebrated2000 = true;
         save();
         const encouragement = twoLitresReached
-          ? `🎉 Amazing, ${name}! You've reached 2,000 ml today. That's a wonderful milestone—take a moment to celebrate and keep following your fluid plan. 🎉`
-          : `🎉 You did it, ${name}! You reached today's fluid goal. Fantastic work! Take a moment to celebrate, and keep following your fluid plan. 🎉`;
+          ? `🎉 Amazing, ${buddyName()}! You've reached 2,000 ml today. That's a wonderful milestone—take a moment to celebrate and keep following your fluid plan. 🎉`
+          : `🎉 You did it, ${buddyName()}! You reached today's fluid goal. Fantastic work! Take a moment to celebrate, and keep following your fluid plan. 🎉`;
         addMessage('Buddy', encouragement, false, true);
         showGoalCelebration();
       }
@@ -390,7 +387,7 @@
       const title = document.createElement('h2');
       title.textContent = '🎉 Goal reached! 🎉';
       const note = document.createElement('p');
-      note.textContent = `Fantastic work, ${name}! You reached today's fluid goal.`;
+      note.textContent = `Fantastic work, ${buddyName()}! You reached today's fluid goal.`;
       const close = document.createElement('button');
       close.className = 'party-close';
       close.type = 'button';
@@ -442,11 +439,21 @@
     function reply(text) {
       const msg = text.trim(), lower = msg.toLowerCase();
       if (!msg) return;
-      addMessage(name, msg, true);
+      addMessage(name || 'You', msg, true);
+      const nameMatch = msg.match(/^(?:my name is|call me)\s+(.+)$/i);
+      if (nameMatch) {
+        name = nameMatch[1].trim().slice(0,40) || '';
+        if (name) {
+          writeStorage('hydration-buddy-name', name);
+          $('greeting').textContent = `A friendly hydration companion for ${name}.`;
+          addMessage('Buddy', `Nice to meet you, ${name}! I'll use your name on this device. You can change it by saying "my name is …".`);
+        } else addMessage('Buddy', 'I didn’t catch a name there. You can tell me with “my name is …” or skip it.');
+        return;
+      }
       if (lower === 'help' || lower === 'commands') {
         addMessage('Buddy', "Try 'drink 200', 'goal 1800' (your own care-team-recommended target), 'status', 'weather London', 'time', 'alarm 07:30', or 'remind 20'.");
       } else if (/^(hi|hello|hey|good morning|good afternoon|good evening)[!. ]*$/.test(lower)) {
-        addMessage('Buddy', `Hi, ${name}! How can I help you today? You can ask for the time or weather, log a drink, or set a reminder.`);
+        addMessage('Buddy', `Hi, ${buddyName()}! How can I help you today? You can ask for the time or weather, log a drink, or set a reminder.`);
       } else if (lower.includes('how are you')) {
         addMessage('Buddy', "I'm doing well and ready to keep you company. How are you feeling?");
       } else if (/^(thanks|thank you|cheers)[!. ]*$/.test(lower)) {
@@ -555,7 +562,9 @@
       $('date').textContent = now.toLocaleDateString([], {weekday:'long', year:'numeric', month:'long', day:'numeric'});
     }
     tick(); setInterval(tick, 1000); updateLog();
-    addMessage('Buddy', `Hi, ${name}! I can log drinks, check weather, and set reminders or alarms.`);
+    addMessage('Buddy', name
+      ? `Hi, ${name}! I can log drinks, check weather, and set reminders or alarms.`
+      : `Hi! I’m your Hydration Buddy. What name would you like me to use? Say “my name is …”, or skip and start tracking. I can log drinks, check weather, and help with reminders.`);
     addMessage('Buddy', 'Diabetes does not mean everyone has the same fluid target. Use the amount recommended by your diabetes care team, especially if you have kidney or heart problems or a fluid limit.');
     pageReady = true;
   </script>

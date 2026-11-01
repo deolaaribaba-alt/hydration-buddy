@@ -12,7 +12,7 @@ Choose a reminder interval and active hours in the Reminders card, then select *
 2. Drag the `hydration-buddy-site` folder onto the deploy area.
 3. Netlify will provide an HTTPS link you can share.
 
-The app has no server or account system. Drink logs, goals, and reminder preferences stay in each visitor's browser storage on that device. City searches go to Open-Meteo. Browser speech recognition may process microphone audio through the browser's recognition service; voice is optional. Review the privacy notice in the app before sharing it broadly.
+The app has no server or account system. A chosen name, drink logs, goals, and reminder preferences stay in each visitor's browser storage on that device. City searches go to Open-Meteo. Browser speech recognition may process microphone audio through the browser's recognition service; voice is optional. Review the privacy notice in the app before sharing it broadly.
 
 ## Health guidance
 
