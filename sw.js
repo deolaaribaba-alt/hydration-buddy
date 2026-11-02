@@ -1,5 +1,5 @@
-const CACHE_NAME = 'hydration-buddy-v4';
-const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './about.html', './privacy.html', './case-study.html'];
+const CACHE_NAME = 'hydration-buddy-v5';
+const APP_FILES = ['./', './index.html', './manifest.webmanifest', './icon.svg', './about.html', './privacy.html', './case-study.html', './hydration-buddy-demo-poster.png'];
 
 self.addEventListener('install', event => {
   event.waitUntil(caches.open(CACHE_NAME).then(cache => cache.addAll(APP_FILES)));

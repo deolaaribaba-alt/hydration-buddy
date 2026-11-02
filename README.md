@@ -6,6 +6,8 @@ A friendly hydration tracker for logging drinks, setting a flexible routine, che
 
 **Product case study:** https://hydration-buddy-tracker.netlify.app/case-study.html
 
+**Short demo:** https://hydration-buddy-tracker.netlify.app/hydration-buddy-demo.mp4
+
 This case study describes the problem, product decisions, privacy and accessibility trade-offs, and the next learning steps. It does not claim unmeasured user outcomes.
 
 ## Help others get started
