@@ -4,6 +4,10 @@ A friendly hydration tracker for logging drinks, setting a flexible routine, che
 
 **Live site:** https://hydration-buddy-tracker.netlify.app/
 
+**Product case study:** https://hydration-buddy-tracker.netlify.app/case-study.html
+
+This case study describes the problem, product decisions, privacy and accessibility trade-offs, and the next learning steps. It does not claim unmeasured user outcomes.
+
 ## Help others get started
 
 Share the public link: https://hydration-buddy-tracker.netlify.app/ . The app includes a **Share Hydration Buddy** button that uses the device share sheet when available, plus a **Copy link** option for messaging, email, or social posts. New visitors see a short start guide and instructions for adding the app to their home screen.

@@ -1,0 +1,101 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="theme-color" content="#23445a">
+  <meta name="description" content="A product case study on designing Hydration Buddy, a private, accessible hydration routine tracker.">
+  <link rel="icon" href="icon.svg" type="image/svg+xml">
+  <title>Hydration Buddy case study | Product design and development</title>
+  <style>
+    :root{color-scheme:light;--ink:#20313b;--muted:#536a76;--navy:#23445a;--blue:#3f8eae;--pale:#eaf3f6;--coral:#e99a77;--line:#d8e4e9}
+    *{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f3f7f8;color:var(--ink);font:16px/1.65 system-ui,-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    a{color:var(--navy);text-underline-offset:3px}a:focus-visible,summary:focus-visible{outline:3px solid var(--coral);outline-offset:3px;border-radius:4px}
+    .skip{position:absolute;left:14px;top:-60px;background:#fff;padding:10px 14px;z-index:5}.skip:focus{top:12px}
+    .topbar{background:var(--navy);color:#fff}.topbar-inner{width:min(1060px,calc(100% - 36px));margin:auto;padding:16px 0;display:flex;justify-content:space-between;align-items:center;gap:16px}.brand{font-weight:750;color:#fff;text-decoration:none}.topbar nav{display:flex;gap:20px;flex-wrap:wrap}.topbar nav a{color:#fff;font-size:14px}
+    main{width:min(960px,calc(100% - 36px));margin:34px auto 60px}.hero{display:grid;grid-template-columns:1.3fr .7fr;gap:28px;align-items:center;padding:clamp(26px,5vw,54px);background:#fff;border:1px solid var(--line);border-radius:24px;box-shadow:0 12px 34px #23445a12}.eyebrow{margin:0 0 10px;color:#2e718b;font-size:13px;font-weight:750;letter-spacing:.12em;text-transform:uppercase}h1{margin:0;font-size:clamp(36px,6vw,58px);line-height:1.04;letter-spacing:-.035em}h2{margin:0 0 12px;font-size:25px;line-height:1.2}h3{margin:0 0 6px;font-size:17px}p{margin:0 0 14px}.lead{margin:17px 0 20px;color:#425a66;font-size:19px;line-height:1.5;max-width:58ch}.actions{display:flex;flex-wrap:wrap;gap:10px}.button{display:inline-flex;min-height:46px;align-items:center;justify-content:center;padding:10px 16px;border-radius:11px;background:var(--navy);color:#fff;font-weight:700;text-decoration:none}.button.secondary{background:var(--pale);color:var(--navy)}
+    .mock{border-radius:20px;background:linear-gradient(150deg,#23445a,#356a83);padding:19px;color:white;box-shadow:0 18px 35px #23445a30;transform:rotate(2deg)}.mock-head{display:flex;justify-content:space-between;align-items:center;font-weight:700}.drop{width:34px;height:42px;border-radius:58% 58% 58% 10%;transform:rotate(-45deg);background:linear-gradient(135deg,#78d1e5,#3f8eae);box-shadow:inset -3px -4px 8px #23445a40}.mock-sub{margin:18px 0 5px;color:#d9eaf1;font-size:13px}.mock-number{font-size:30px;font-weight:800}.track{height:9px;border-radius:99px;background:#ffffff45;overflow:hidden}.track span{display:block;width:67%;height:100%;border-radius:99px;background:#f4b193}.mock-note{margin:13px 0 0;color:#d9eaf1;font-size:12px}
+    .meta{display:flex;flex-wrap:wrap;gap:8px;margin-top:20px}.meta span{padding:6px 10px;border:1px solid var(--line);border-radius:99px;color:#425a66;background:#f8fbfc;font-size:13px;font-weight:650}
+    .section{margin-top:20px;padding:clamp(22px,4vw,36px);background:#fff;border:1px solid var(--line);border-radius:20px}.section p,.section li{max-width:76ch}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px;margin-top:18px}.tile{padding:18px;background:#f4f8fa;border-radius:14px;border-top:3px solid var(--blue)}.tile p{margin:0;color:#485e69}.steps{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;margin-top:18px}.step{padding:17px;border:1px solid var(--line);border-radius:14px}.step-number{display:block;margin-bottom:8px;color:#28728d;font-size:13px;font-weight:800;letter-spacing:.1em}.callout{padding:17px 20px;background:#fff3ed;border-left:4px solid var(--coral);border-radius:10px}.callout p{margin:0}.list{padding-left:22px}.list li{margin:7px 0}.next{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-top:16px}.next article{padding:17px;background:var(--pale);border-radius:14px}.next p{margin:0;color:#425a66}.footer{display:flex;flex-wrap:wrap;gap:16px;justify-content:space-between;align-items:center;margin:24px 4px;color:var(--muted);font-size:14px}.footer nav{display:flex;gap:16px;flex-wrap:wrap}
+    @media(max-width:700px){.hero{grid-template-columns:1fr}.mock{max-width:330px}.steps{grid-template-columns:1fr}.next{grid-template-columns:1fr}}
+    @media(max-width:500px){.topbar-inner{align-items:flex-start;flex-direction:column}.grid{grid-template-columns:1fr}.footer{align-items:flex-start;flex-direction:column}}
+    @media(prefers-reduced-motion:reduce){html{scroll-behavior:auto}}
+  </style>
+</head>
+<body>
+  <a class="skip" href="#main">Skip to case study</a>
+  <div class="topbar"><div class="topbar-inner"><a class="brand" href="./">Hydration Buddy</a><nav aria-label="Main navigation"><a href="./">Open the tracker</a><a href="https://github.com/deolaaribaba-alt/hydration-buddy">GitHub source</a></nav></div></div>
+  <main id="main">
+    <section class="hero" aria-labelledby="page-title">
+      <div>
+        <p class="eyebrow">Product case study · 2026</p>
+        <h1 id="page-title">Hydration Buddy</h1>
+        <p class="lead">Making a small daily self-care habit feel easier, more personal, and more welcoming—without asking people to create an account.</p>
+        <div class="actions"><a class="button" href="./">Try the live tracker</a><a class="button secondary" href="https://github.com/deolaaribaba-alt/hydration-buddy">View the source</a></div>
+        <div class="meta" aria-label="Project details"><span>Product owner: deolaaribaba-alt</span><span>AI-assisted development</span><span>HTML · CSS · JavaScript</span></div>
+      </div>
+      <div class="mock" role="img" aria-label="Illustration of Hydration Buddy's daily drink progress card">
+        <div class="mock-head"><span>Hydration Buddy</span><span class="drop" aria-hidden="true"></span></div>
+        <p class="mock-sub">TODAY'S FLUID LOG</p><div class="mock-number">1,350 <span style="font-size:15px;font-weight:600">ml</span></div>
+        <div class="track" aria-hidden="true"><span></span></div><p class="mock-note">A gentle check-in, at your pace.</p>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="challenge-title">
+      <h2 id="challenge-title">The challenge</h2>
+      <p>Many hydration apps can make a simple routine feel like a chore: they may ask for an account up front, rely on rigid targets, or provide little encouragement. Hydration Buddy explores a lighter approach: let someone open the tracker and start logging, while keeping goals flexible and health guidance cautious.</p>
+      <div class="callout"><p><strong>Product principle:</strong> support a useful habit without presenting a generic number as a personal medical instruction.</p></div>
+    </section>
+
+    <section class="section" aria-labelledby="role-title">
+      <h2 id="role-title">My role</h2>
+      <p>I shaped the product direction through iterative decisions about the experience, features, accessibility, privacy, and health boundaries. I used AI-assisted development to build and refine the working app, then reviewed the published experience and its limitations.</p>
+      <p>The project is a practical example of turning a product idea into a usable, publicly available web app and making trade-offs explicit as it grew.</p>
+    </section>
+
+    <section class="section" aria-labelledby="decisions-title">
+      <h2 id="decisions-title">Key product decisions</h2>
+      <div class="grid">
+        <article class="tile"><h3>Start without signup</h3><p>People can use the tracker right away. Drink logs, goals, and preferences stay in the current browser, avoiding account friction and a cloud database for a first version.</p></article>
+        <article class="tile"><h3>Keep goals under the user's control</h3><p>A general guide is clearly labeled, and users can enter a target based on their care team's advice. Weather prompts do not override a personal goal.</p></article>
+        <article class="tile"><h3>Make the habit feel friendly</h3><p>Chat, optional spoken replies, configurable reminders, and a celebration at goal completion offer encouragement while keeping interaction optional.</p></article>
+        <article class="tile"><h3>Design for everyday access</h3><p>Responsive layouts, clear labels, keyboard focus styles, reduced-motion support, and an installable app shell help the experience work across devices and preferences.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="experience-title">
+      <h2 id="experience-title">How the experience works</h2>
+      <div class="steps">
+        <article class="step"><span class="step-number">01 · OPEN</span><h3>Begin immediately</h3><p>No account or app-store download is required to try the tracker.</p></article>
+        <article class="step"><span class="step-number">02 · PERSONALIZE</span><h3>Choose a routine</h3><p>Log drinks, set a reminder schedule, and use a suitable daily target.</p></article>
+        <article class="step"><span class="step-number">03 · RETURN</span><h3>Build consistency</h3><p>Use gentle nudges and progress feedback to make the habit easy to revisit.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="tradeoffs-title">
+      <h2 id="tradeoffs-title">Trade-offs and learning</h2>
+      <ul class="list">
+        <li><strong>Privacy vs. continuity:</strong> local storage keeps setup simple and private, but the log does not sync across devices and can be lost when browser data is cleared.</li>
+        <li><strong>Reminders vs. reliability:</strong> browser timers are straightforward, but they pause when the page is closed. The interface explains this limitation.</li>
+        <li><strong>Personalization vs. medical boundaries:</strong> weather can add context, but it cannot determine an individual's fluid needs. The app keeps care-team instructions in control.</li>
+      </ul>
+    </section>
+
+    <section class="section" aria-labelledby="next-title">
+      <h2 id="next-title">What I would validate next</h2>
+      <p>This version is a working product prototype. The next step is to learn from real use before adding complexity.</p>
+      <div class="next">
+        <article><h3>Run a small usability review</h3><p>Ask a few people to complete key tasks: log a drink, change a goal, start a reminder, and find the privacy information. Record friction and improve the flow.</p></article>
+        <article><h3>Measure adoption with consent</h3><p>If usage analytics are ever added, explain them clearly and collect only what is needed. For now, no analytics are used and no usage claims are made.</p></article>
+      </div>
+    </section>
+
+    <section class="section" aria-labelledby="links-title">
+      <h2 id="links-title">Explore the project</h2>
+      <p><a href="./">Try Hydration Buddy</a> · <a href="https://github.com/deolaaribaba-alt/hydration-buddy">Read the code and project notes</a> · <a href="about.html">Read health guidance</a> · <a href="privacy.html">Read the privacy details</a></p>
+      <p class="callout"><strong>Health note:</strong> Hydration Buddy supports general habit tracking. It is not medical advice, and people should follow any fluid target or limit set by their healthcare team.</p>
+    </section>
+    <footer class="footer"><span>Hydration Buddy · Product case study</span><nav aria-label="Footer"><a href="./">Tracker</a><a href="about.html">About</a><a href="privacy.html">Privacy</a><a href="https://github.com/deolaaribaba-alt/hydration-buddy">GitHub</a></nav></footer>
+  </main>
+</body>
+</html>
